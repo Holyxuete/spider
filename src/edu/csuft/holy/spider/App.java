@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +38,7 @@ public class App {
 		// 利用Jsoup抓取
 		try {
 			Document doc = Jsoup.connect(url).get();
-			
+			// 获取当前页面所有影片的 li 标签
 			Elements es = doc.select(".grid_view");
 			
 			// 创建一个影片的列表
@@ -62,8 +61,8 @@ public class App {
 				film.setId(id);
 				
 				// 电影相关信息
-//				Element in = movieUrl.select(".info").first();
-//				System.out.println(in.text());
+				String info = getInfor(movieUrl);
+				film.setInfo(info);
 				
 				// 评分
 				Element rating = movieUrl.select(".rating_num").first();
@@ -77,14 +76,29 @@ public class App {
 				Element d = movieUrl.select("span[property='v:initialReleaseDate']").first();
 				// 截串 例 1994-04-10
 				String da = d.text().toString().substring(0, 10);
-				// 字符串转日期
+				// 设置强转格式
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				// 字符串转日期
 				Date date = sdf.parse(da);
 				film.setDate(date);
 				
 				// 海报路径
 				String poster = e.select("img").first().attr("src").toString();
 				film.setPoster(poster);
+				
+				// 国家
+				// 获取第六个含 pl 类的 span 标签的前一个元素节点的前一个文本节点
+				String nation = movieUrl.select(".pl").get(5).previousElementSibling().previousSibling().toString();
+				film.setNation(nation);
+				
+				// 语言
+				// 获取第七个含 pl 类的 span 标签的前一个元素节点的前一个文本节点
+				String language = movieUrl.select(".pl").get(6).previousElementSibling().previousSibling().toString();
+				film.setLanguage(language);
+				
+				// 类型
+				String genre = movieUrl.select("span[property='v:genre']").text();
+				film.setGenre(genre);
 				
 				// 通过创建连接
 				URL posterUrl = new URL(poster);
@@ -102,7 +116,10 @@ public class App {
 					fos.write(buf, 0, size);
 				}
 				film.setPosterPath(PATH + id + ".jpg");
+				
 				System.out.println(film);
+				// 将 film 存入 ArrayList 内
+				list.add(film);
 			}
 			
 		} catch (Exception e) {
@@ -112,8 +129,28 @@ public class App {
 			app.StreamClose(fos, bis, inputStream);
 		}
 	}
+
+	/**
+	 * 获取电影相关信息
+	 * @param movieUrl 电影路径
+	 * @return
+	 */
+	private static String getInfor(Document movieUrl) {
+		// 获取导演
+		String info = "导演 : " + movieUrl.select("a[rel='v:directedBy']").text();
+		// 获取编剧
+		info += ", 编剧 : " + movieUrl.select(".attrs").get(1).text();
+		// 获取主演
+		info += ", 主演 : " + movieUrl.select(".attrs").get(2).text();
+		return info;
+	}
 	
-	// 流的关闭
+	/**
+	 * 流的关闭
+	 * @param fos 输出流
+	 * @param bis 缓冲流
+	 * @param is  输入流
+	 */
 	public void StreamClose(FileOutputStream fos, BufferedInputStream bis, InputStream is) {
 		if(fos != null) {
 			try {

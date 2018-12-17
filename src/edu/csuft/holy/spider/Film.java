@@ -40,6 +40,19 @@ public class Film {
 	 *  上映日期
 	 */
 	private Date date;
+	/**
+	 *  上映国家/地区
+	 */
+	private String nation;
+	/**
+	 * 语言
+	 */
+	private String language;
+	/**
+	 *  类型
+	 * @return
+	 */
+	private String genre;
 	
 	public String getTitle() {
 		return title;
@@ -90,10 +103,29 @@ public class Film {
 	public void setDate(Date date) {
 		this.date = date;
 	}
+	public String getNation() {
+		return nation;
+	}
+	public void setNation(String nation) {
+		this.nation = nation;
+	}
+	public String getLanguage() {
+		return language;
+	}
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+	public String getGenre() {
+		return genre;
+	}
+	public void setGenre(String genre) {
+		this.genre = genre;
+	}
 	@Override
 	public String toString() {
-		return "Film [title=" + title + "\ninfo=" + info + "\nrating=" + rating + "\nnumber=" + number + "\nid=" + id
-				+ "\nposter=" + poster + "\nposterPath=" + posterPath + "\ndate=" + date + "]";
+		return "Film [title=" + title + ", info=" + info + ", rating=" + rating + ", number=" + number + ", id=" + id
+				+ ", poster=" + poster + ", posterPath=" + posterPath + ", date=" + date + ", nation=" + nation
+				+ ", language=" + language + ", genre=" + genre + "]";
 	}
 	
 }
