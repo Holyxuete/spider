@@ -1,4 +1,4 @@
-package edu.csuft.holy.spider;
+package edu.csuft.holy.domain;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
@@ -14,19 +14,21 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import edu.csuft.holy.spider.Film;
+
 /**
  * 
  * @author Zypher
  *
  */
-public class App {
+public class App2 {
 	// 海报本地存放路径
 	public static String PATH = "E://Pictures//spiderPhoto//";
 	
 	//
-	public static void main(String[] args) {
+	public void spider(String url, ArrayList<Film> list) {
 		// 目标url
-		String url = "https://movie.douban.com/top250";
+//		String url = "https://movie.douban.com/top250";
 		// 输入流读取海报图片
 		InputStream inputStream = null;
 		// 缓冲流
@@ -34,15 +36,15 @@ public class App {
 		// 输出流写出图片
 		FileOutputStream fos = null;
 		
-		App app = new App();
+		App2 app = new App2();
 		// 利用Jsoup抓取
+//		ArrayList<Film> list = new ArrayList<>();	
 		try {
 			Document doc = Jsoup.connect(url).get();
 			// 获取当前页面所有影片的 li 标签
-			Elements es = doc.select(".grid_view");
+			Elements es = doc.select(".grid_view li");
 			
 			// 创建一个影片的列表
-			ArrayList<Film> list = new ArrayList<>();
 			
 			for(Element e : es) {
 				Film film = new Film();
@@ -53,7 +55,7 @@ public class App {
 				Document movieUrl = Jsoup.connect(eUrl.attr("href")).get();
 				
 				// 电影标题
-				Element title = movieUrl.selectFirst("h1");
+				Element title = movieUrl.selectFirst("h1 span");
 				film.setTitle(title.text().toString());
 				
 				// 排名
@@ -61,8 +63,8 @@ public class App {
 				film.setId(id);
 				
 				// 电影相关信息
-//				String info = getInfor(movieUrl);
-//				film.setInfo(info);
+				String info = getInfor(movieUrl);
+				film.setInfo(info);
 				
 				// 评分
 				Element rating = movieUrl.selectFirst(".rating_num");
@@ -73,7 +75,7 @@ public class App {
 				film.setNumber(Integer.parseInt(number.substring(0, number.length() - 3)));
 				
 				// 上映日期 截串 例 1994-04-10
-				String da = movieUrl.selectFirst("span[property='v:initialReleaseDate']").text().toString().substring(0, 10);
+				String da = movieUrl.selectFirst("span[property='v:initialReleaseDate']").text().substring(0, 10);
 				// 设置强转格式
 //				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				// 字符串转日期
@@ -87,12 +89,20 @@ public class App {
 				// 国家
 				// 获取第六个含 pl 类的 span 标签的前一个元素节点的前一个文本节点
 				String nation = movieUrl.select(".pl").get(5).previousElementSibling().previousSibling().toString();
+				String language = movieUrl.select(".pl").get(6).previousElementSibling().previousSibling().toString();;
+				if(nation.contains("href")) {
+					nation = movieUrl.select(".pl").get(6).previousElementSibling().previousSibling().toString();
+					language = movieUrl.select(".pl").get(7).previousElementSibling().previousSibling().toString();
+				}
+				if(nation.contains("href")) {
+					nation = movieUrl.select(".pl").get(7).previousElementSibling().previousSibling().toString();
+					movieUrl.select(".pl").get(8).previousElementSibling().previousSibling().toString();
+				}
 				film.setNation(nation);
+				film.setLanguage(language);
 				
 				// 语言
 				// 获取第七个含 pl 类的 span 标签的前一个元素节点的前一个文本节点
-				String language = movieUrl.select(".pl").get(6).previousElementSibling().previousSibling().toString();
-				film.setLanguage(language);
 				
 				// 类型
 				String genre = movieUrl.select("span[property='v:genre']").text();
@@ -115,7 +125,7 @@ public class App {
 				}
 				film.setPosterPath(PATH + id + ".jpg");
 				
-				System.out.println(film);
+//				System.out.println(film.getDate());
 				// 将 film 存入 ArrayList 内
 				list.add(film);
 			}
@@ -136,11 +146,11 @@ public class App {
 	 */
 	private static String getInfor(Document movieUrl) {
 		// 获取导演
-		String info = "导演 : " + movieUrl.select("a[rel='v:directedBy']").text() + "\n";
+		String info = "导演 : " + movieUrl.select("a[rel='v:directedBy']").text();
 		// 获取编剧
-		info += "编剧 : " + movieUrl.select(".attrs").get(1).text() + "\n";
+//		info += "编剧 : " + movieUrl.select("#info .attrs").get(1).text() + "\n";
 		// 获取主演
-		info += "主演 : " + movieUrl.select(".attrs").get(2).text() + "\n";
+//		info += "主演 : " + movieUrl.select("#info .attrs").get(2).text() + "\n";
 		return info;
 	}
 	

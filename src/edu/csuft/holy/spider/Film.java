@@ -1,13 +1,11 @@
 package edu.csuft.holy.spider;
 
-import java.util.Date;
-
 /**
  *  影片
  * @author Zypher
  *
  */
-public class Film {
+public class Film implements Comparable<Film>{
 	/**
 	 *  影片标题
 	 */
@@ -39,7 +37,7 @@ public class Film {
 	/**
 	 *  上映日期
 	 */
-	private Date date;
+	private String date;
 	/**
 	 *  上映国家/地区
 	 */
@@ -97,10 +95,10 @@ public class Film {
 	public void setPosterPath(String posterPath) {
 		this.posterPath = posterPath;
 	}
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 	public String getNation() {
@@ -127,5 +125,14 @@ public class Film {
 				+ ", poster=" + poster + ", posterPath=" + posterPath + ", date=" + date + ", nation=" + nation
 				+ ", language=" + language + ", genre=" + genre + "]";
 	}
-	
+	public String toCSV() {
+		// TODO Auto-generated method stub
+		return String.format("%d|%s|%s|%.1f|%d|%s|%s|%s|%s\n",
+				id,title,info,rating,number,date,nation,language,genre);
+	}
+	@Override
+	public int compareTo(Film o) {
+		// TODO Auto-generated method stub
+		return id - o.id;
+	}
 }
